@@ -4,7 +4,7 @@ namespace GildedRose.Test
 {
     public static class ItemProviderTest
     {
-        public static IList<Item> GetItems()
+        public static List<Item> GetItems()
         {
             return new List<Item>{
                 new Item {Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20},

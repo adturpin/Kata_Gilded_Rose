@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using GildedRose;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,29 +13,22 @@ namespace GildedRose.Test
     public class UnitTest1
     {
         [TestMethod]
-        public void TestMethod1()
+        public void GoldenMasterTest()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "foo", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.AreEqual("foo", Items[0].Name);
+            var goldenItems = ItemProviderTest.GetItems();
+            var refactoredItems = ItemProviderTest.GetItems();
 
-            Dictionary<string,string> COLLECTION = new Dictionary<string, string>();
-            foreach (KeyValuePair<string,string> VARIABLE in COLLECTION)
+            var goldenMasterApp = new GildedRose(goldenItems);
+            var refactorApp = new GildedRoseRefactor(refactoredItems);
+            for (int i = 0; i < 100; i++)
             {
-                
+                goldenMasterApp.UpdateQuality();
+                refactorApp.UpdateQuality();
+                CollectionAssert.AreEquivalent(goldenItems.Select(x => x.Quality).ToArray(),
+                    refactoredItems.Select(x => x.Quality).ToArray());
+                CollectionAssert.AreEquivalent(goldenItems.Select(x => x.SellIn).ToArray(),
+                    refactoredItems.Select(x => x.SellIn).ToArray());
             }
         }
-
-        //[TestMethod]
-        //public void ThirtyDays()
-        //{
-        //    StringBuilder fakeoutput = new StringBuilder();
-        //    Console.SetOut(new StringWriter(fakeoutput));
-        //    Console.SetIn(new StringReader("a\n"));
-        //    Program.Main(new string[] { });
-        //    var output = fakeoutput.ToString();
-        //    Approvals.Verify(output);
-        //}
     }
 }
