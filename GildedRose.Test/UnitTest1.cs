@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using GildedRose;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
+using FluentAssertions;
 
 namespace GildedRose.Test
 {
@@ -14,27 +10,21 @@ namespace GildedRose.Test
         [TestMethod]
         public void TestMethod1()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "foo", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.AreEqual("foo", Items[0].Name);
-
-            Dictionary<string,string> COLLECTION = new Dictionary<string, string>();
-            foreach (KeyValuePair<string,string> VARIABLE in COLLECTION)
+            var goldenMasterItems =ItemProviderTest.GetItems();
+            var goldenMaster = new GildedRoseGoldenMaster(goldenMasterItems);
+            var items =ItemProviderTest.GetItems();
+            var app = new GildedRose(items);
+            for (var i = 0; i < 100; i++)
             {
-                
-            }
-        }
+                goldenMaster.UpdateQuality();
+                app.UpdateQuality();
 
-        //[TestMethod]
-        //public void ThirtyDays()
-        //{
-        //    StringBuilder fakeoutput = new StringBuilder();
-        //    Console.SetOut(new StringWriter(fakeoutput));
-        //    Console.SetIn(new StringReader("a\n"));
-        //    Program.Main(new string[] { });
-        //    var output = fakeoutput.ToString();
-        //    Approvals.Verify(output);
-        //}
+                goldenMasterItems.Select(x => x.Quality)
+                    .Should().ContainInOrder(items.Select(x => x.Quality));
+                goldenMasterItems.Select(x => x.SellIn)
+                    .Should().ContainInOrder(items.Select(x => x.SellIn));
+            }
+
+        }
     }
 }
